@@ -5,9 +5,8 @@ Remote Ranorex library to integrate with Robot Framework
 
 Introduction
 ============
-!This library is under heavy construction!
-This is basic implementation of Ranorex test tool (www.ranorex.com) to use it
-with Robot Framewok.
+This is basic implementation of Ranorex test tool (www.ranorex.com) to use 
+with Robot Framework.
 
 Installation
 ============
@@ -23,10 +22,5 @@ ipy.exe/ipy64.exe rxconnector.py [args]
 eg.   ipy.exe rxconnector.py 10.1.32.43 8452
 
 In Robot Framework test suite/case just specify
-Library    Remote    <ip>:<port>
+Library    Remote    ip:port
 and run keywords that are implemented in here
-
-
-
-
-

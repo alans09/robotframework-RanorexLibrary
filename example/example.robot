@@ -1,5 +1,5 @@
 *** Settings ***
-Library    Remote    http://10.1.190.12:8200    WITH NAME    remote
+Library    Remote    http://127.0.0.1:8270    WITH NAME    remote
 Library    HelperModule 
 
 *** Keywords ****
@@ -58,7 +58,7 @@ Close notepad
 Load json file from disk
     Load json from file    test_data.json
 
-Start firefox on page google.sk
+Start rfirefox on page google.sk
     Run application firefox.exe with parameters www.google.sk
 
 Check of run script keyword
