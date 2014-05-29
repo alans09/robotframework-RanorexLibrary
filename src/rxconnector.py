@@ -96,7 +96,7 @@ class RanorexLibrary(object):
         element = self.__return_type(locator)
         if element == 'CheckBox' or element == 'RadioButton':
             obj = getattr(Ranorex, element)(locator)
-            if obj.Element.GetAttributeValue('Checked'):
+            if not obj.Element.GetAttributeValue('Checked'):
                 obj.Click()
         else:
             raise AssertionError("Element |%s| is not supported for checking" %
@@ -249,7 +249,7 @@ class RanorexLibrary(object):
         element = self.__return_type(locator)
         if element == 'CheckBox' or element == 'RadioButton':
             obj = getattr(Ranorex, element)(locator)
-            if not obj.Element.GetAttributeValue('Checked'):
+            if obj.Element.GetAttributeValue('Checked'):
                 obj.Click()
         else:
             raise AssertionError("Element |%s| not supported for unchecking"

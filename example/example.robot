@@ -18,7 +18,7 @@ Check if ${titlebar_arg} in header is ${expected_value}
 
 Click close and not save
     Click Element    /form[@title='Untitled - Notepad']/?/?/button[@accessiblename='Close']
-    Click Element    /form[@title='Notepad']/button[@text='&No']
+    Click Element    /form[@processname='notepad']//button[@text='Do&n''t Save' or @text='&No']
 
 Load json from file    [Arguments]    ${path_to_json}
     ${json} =    Load Json File    ${path_to_json} 
@@ -44,6 +44,22 @@ Run script with parameters on remote machine    [Arguments]    ${script_path}   
     Log    ${res['stdout']}
     Log    ${res['stderr']}
 
+Test of check function 
+    Run Application    charmap.exe
+    Check    /form[@title='Character Map']/checkbox[@text='Ad&vanced view']
+    ${res} =    Get Element Attribute    /form[@title='Character Map']/checkbox[@text='Ad&vanced view']    Checked
+    ${res} =    Convert To String    ${res}
+    Should Be Equal    ${res}    True 
+
+Test of uncheck function
+    Uncheck    /form[@title='Character Map']/checkbox[@text='Ad&vanced view']
+    ${res} =    Get Element Attribute    /form[@title='Character Map']/checkbox[@text='Ad&vanced view']    Checked
+    ${res} =    Convert To String    ${res}
+    Should Be Equal    ${res}    False
+    Click Element    /form[@processname='charmap' and @class='#32770' and @instance='1']/?/?/button[@accessiblename='Close']
+
+
+
 *** Test case ***
 Basic notepad work
     Run notepad and input text hello-world
@@ -58,11 +74,18 @@ Close notepad
 Load json file from disk
     Load json from file    test_data.json
 
-Start rfirefox on page google.sk
+Start firefox on page google.sk
     Run application firefox.exe with parameters www.google.sk
 
 Check of run script keyword
-    Run script on remote machine    a.bat
+    Run script on remote machine    EchoOnly.bat
 
 Check of run script with parameters keyword
-   Run script with parameters on remote machine    b.bat    hello world parameters 
+    Run script with parameters on remote machine    EchoInput.bat    hello world parameters 
+
+Micro test of check function
+    Test of check function
+
+Micro test of uncheck function
+    Test of uncheck function
+
