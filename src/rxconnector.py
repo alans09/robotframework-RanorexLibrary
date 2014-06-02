@@ -256,6 +256,19 @@ class RanorexLibrary(object):
         Ranorex.Keyboard.PrepareFocus(locator)
         Ranorex.Keyboard.Press(key_seq)
 
+    def set_focus(self, locator):
+        """ Sets focus on desired location.
+        Inputs:
+            locator -> xpath to object
+        Outputs:
+            True if focus is set 
+            else RanorexException
+        """
+        element = self.__return_type(locator)
+        obj = getattr(Ranorex, element)(locator)
+        obj.Focus()
+        return obj.HasFocus
+
     def take_screenshot(self, locator):
         """ Takes screenshot and return it as base64.
         Inputs:

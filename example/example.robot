@@ -29,7 +29,9 @@ Run application ${browser} with parameters ${page}
     Log    ${browser}
     Log    ${page}
     Run Application With Parameters    ${browser}    ${page}
-    Wait For Element    /form[@title~'^Google\ -\ Windows\ Internet']    10000 
+    Wait For Element    /form[@title~'^Google\ -\ Windows\ Internet']    10000
+    ${focus} =    Set Focus     /form[@title~'^Google\ -\ Windows\ Internet']
+    Log    ${focus}
     Send Keys    /form[@title~'^Google\ -\ Windows\ Internet']    {Alt down}{F4}{Alt up}
 
 Take screenshot and save it localy
