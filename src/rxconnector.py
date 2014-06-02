@@ -102,6 +102,22 @@ class RanorexLibrary(object):
             raise AssertionError("Element |%s| is not supported for checking" %
                                  element)
 
+    def clear_text(self, locator):
+        """ Clears text from text box. Only element Text is supported.
+        Inputs:
+            locator -> xpath to object
+        Output:
+            Nothing if ok
+            AssertionError if not supported element
+            else RanorexException
+        """
+        element = self.__return_type(locator)
+        if element != "Text":
+            raise AssertionError("Only element Text is supported!")
+        else:
+            obj = getattr(Ranorex, element)(locator)
+            obj.PressKeys("{End}{Shift down}{Home}{Shift up}{Delete}")
+
     def double_click_element(self, locator):
         """ Doubleclick on element identified by xpath.
         Inputs:
@@ -223,6 +239,22 @@ class RanorexLibrary(object):
             for _ in range(0, abs(diff)):
                 obj.PressKeys("{down}")
         return diff
+
+    @classmethod
+    def send_keys(cls, locator, key_seq):
+        """ Send key combination to specified element.
+        Also it gets focus before executing sequence
+        seq according to :
+        http://msdn.microsoft.com/en-us/library/system.windows.forms.keys.aspx
+        Inputs:
+            locator -> xpath to object
+            key_seq -> key sequence e.g. {Control down}{SKey}{Control up}
+        Output:
+            Nothing if success
+            else RanorexException
+        """
+        Ranorex.Keyboard.PrepareFocus(locator)
+        Ranorex.Keyboard.Press(key_seq)
 
     def take_screenshot(self, locator):
         """ Takes screenshot and return it as base64.

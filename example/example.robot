@@ -4,13 +4,14 @@ Library    HelperModule
 
 *** Keywords ****
 Run notepad and input text hello-world
-    Run Application    notepad.exe    
+    Run Application    notepad.exe   
     Click Element    /form[@title='Untitled - Notepad']/text[@controlid='15']
     Wait For Element    /form[@title='Untitled - Notepad']/text[@controlid='15']    10000
     Wait For Element Attribute    /form[@title='Untitled - Notepad']/titlebar    Text    Untitled\ -\ Notepad    10000
     Input Text    /form[@title='Untitled - Notepad']/text[@controlid='15']    hello-world
+    Clear Text    /form[@title='Untitled - Notepad']/text[@controlid='15']
     Double Click Element    /form[@title='Untitled - Notepad']/text[@controlid='15']
-    Right Click Element   /form[@title='Untitled - Notepad']/text[@controlid='15']
+    Input Text    /form[@title='Untitled - Notepad']/text[@controlid='15']    hello-again-world
 
 Check if ${titlebar_arg} in header is ${expected_value}
     ${title} =    Get Element Attribute    /form[@title='Untitled - Notepad']/titlebar    ${titlebar_arg}
@@ -28,7 +29,8 @@ Run application ${browser} with parameters ${page}
     Log    ${browser}
     Log    ${page}
     Run Application With Parameters    ${browser}    ${page}
-    Click Element    /form[@title='Google - Mozilla Firefox']/?/?/button[@accessiblename='Close']
+    Wait For Element    /form[@title~'^Google\ -\ Windows\ Internet']    10000 
+    Send Keys    /form[@title~'^Google\ -\ Windows\ Internet']    {Alt down}{F4}{Alt up}
 
 Take screenshot and save it localy
     ${screen} =    Take Screenshot    /form[@title='Untitled - Notepad']
@@ -56,7 +58,7 @@ Test of uncheck function
     ${res} =    Get Element Attribute    /form[@title='Character Map']/checkbox[@text='Ad&vanced view']    Checked
     ${res} =    Convert To String    ${res}
     Should Be Equal    ${res}    False
-    Click Element    /form[@processname='charmap' and @class='#32770' and @instance='1']/?/?/button[@accessiblename='Close']
+    Click Element    /form[@title='Character Map']/?/?/button[@accessiblename='Close']
 
 
 
@@ -64,6 +66,12 @@ Test of uncheck function
 Basic notepad work
     Run notepad and input text hello-world
     Check if Text in header is Untitled\ -\ Notepad
+
+Send keys to specified element
+    Send Keys    /form[@title='Untitled - Notepad']    {Control down}{Skey}{Control up}
+    Click Element    /form[@title='Save As']/button[@text='Cancel']
+    Right Click Element   /form[@title='Untitled - Notepad']/text[@controlid='15']
+    Send Keys    //form[@title='Untitled - Notepad']    {Alt down}{Fkey}{Alt up}
 
 Save screenshot of notepad
     Take screenshot and save it localy
@@ -74,14 +82,14 @@ Close notepad
 Load json file from disk
     Load json from file    test_data.json
 
-Start firefox on page google.sk
-    Run application firefox.exe with parameters www.google.sk
+Start Iexplorer on page google.sk
+    Run application iexplore.exe with parameters www.google.sk
 
 Check of run script keyword
-    Run script on remote machine    EchoOnly.bat
+    Run script on remote machine    ..\\example\\echoonly.bat
 
 Check of run script with parameters keyword
-    Run script with parameters on remote machine    EchoInput.bat    hello world parameters 
+    Run script with parameters on remote machine    ..\\example\\echoinput.bat    hello world parameters 
 
 Micro test of check function
     Test of check function
