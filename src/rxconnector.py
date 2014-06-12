@@ -102,6 +102,20 @@ class RanorexLibrary(object):
             raise AssertionError("Element |%s| is not supported for checking" %
                                  element)
 
+    @classmethod
+    def check_if_process_is_running(cls, process_name):
+        """ Check if process with desired name is running.
+        Inputs:
+            process_name -> name of process to look for
+        Output:
+            False if not found
+            name if running
+        """
+        import subprocess
+        proc = subprocess.Popen(['tasklist'], stdout=subprocess.PIPE)
+        out = proc.communicate()[0]
+        return out.find(process_name) != -1 if out else False
+
     def clear_text(self, locator):
         """ Clears text from text box. Only element Text is supported.
         Inputs:
@@ -261,8 +275,8 @@ class RanorexLibrary(object):
         Inputs:
             locator -> xpath to object
         Outputs:
-            True if focus is set 
-            else RanorexException
+            True if focus is set
+            else False
         """
         element = self.__return_type(locator)
         obj = getattr(Ranorex, element)(locator)
@@ -336,7 +350,34 @@ class RanorexLibrary(object):
                 return True
             time.sleep(1)
             curr_time += 1
-        return 'FAIL'
+        raise AssertionError("Object at location %s could not be found"
+                             % locator)
+
+    @classmethod
+    def wait_for_process_to_start(cls, process_name, timeout):
+        """ Waits for /timeout/ seconds for process to start.
+        Input:
+            process_name -> name of process to wait for
+            timeout -> timeout in ms to wait
+        Output:
+            True if process is started
+            False if process is not started within specified time
+        """
+        import time
+        import subprocess
+        curr_time = 0
+        timeout = int(timeout)/1000
+        while curr_time <= timeout:
+            proc = subprocess.Popen(['tasklist'], stdout=subprocess.PIPE)
+            out = proc.communicate()[0]
+            res = out.find(process_name) != -1 if out else False
+            if res:
+                return True
+            else:
+                curr_time += 5
+                time.sleep(5)
+        raise AssertionError('Process %s not found within %ss' % (process_name,
+                                                                  timeout))
 
 
 if __name__ == '__main__':
