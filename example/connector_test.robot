@@ -16,9 +16,12 @@ Test of Wait For Element keyword
 Test of Wait For Element Attribute keyword
     Wait For Element Attribute    /form[@processname='charmap']/titlebar[@accessiblerole='TitleBar']    Visible    True    10000
 
-Test of Click Element
+Test of Click Element keyword
     Click Element    /form[@processname='charmap']/text[@controlid='104']
- 
+
+Test of Click Element keyword with location
+    Click Element    /form[@processname='charmap']/text[@controlid='104']    location=36,6
+
 Test of Input Text keyword
     Input Text     /form[@processname='charmap']/text[@controlid='104']    hello-world   
 
@@ -48,8 +51,14 @@ Test of Clear Text keyword
 Test of Double Click Element keyword
     Double Click Element    /form[@processname='charmap']/text[@controlid='104']
 
+Test of Double Click Element keyword with location
+    Double Click Element    /form[@processname='charmap']/text[@controlid='104']    location=36,5
+
 Test of Right Click Element keyword
     Right Click Element    /form[@processname='charmap']/text[@controlid='104']
+
+Test of Right Click Element keyword with location
+    Right Click Element    /form[@processname='charmap']/text[@controlid='104']    location=36,5
 
 Test of Run Application With Parameters keyword
     Run Application With Parameters    notepad.exe    test.txt
