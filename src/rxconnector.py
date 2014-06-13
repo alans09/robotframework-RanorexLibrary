@@ -74,15 +74,26 @@ class RanorexLibrary(object):
         raise AssertionError("Element is not supported. Entered element: %s" %
                              ele)
 
-    def click_element(self, locator):
+    def click_element(self, locator, location=None):
         """ Clicks on element located on location.
         Inputs:
             locator ->  xpath to object
+            location -> relative coordinates to click (comma separated string)
         Output:
             Nothing if success, else RanorexException raised
         """
         element = self.__return_type(locator)
-        getattr(Ranorex, element)(locator).Click()
+        try:
+            if location == None:
+                getattr(Ranorex, element)(locator).Click()
+            else:
+                if not isinstance(location, basestring):
+                    raise AssertionError('Location must be a string')
+                location = [int(x) for x in location.split(',')]
+                ele = getattr(Ranorex, element)(locator)
+                ele.Click(Ranorex.Location(location[0], location[1]))
+        except Exception as error:
+            raise AssertionError(error)
 
     def check(self, locator):
         """ Check if element is checked. If not it check it
@@ -132,16 +143,27 @@ class RanorexLibrary(object):
             obj = getattr(Ranorex, element)(locator)
             obj.PressKeys("{End}{Shift down}{Home}{Shift up}{Delete}")
 
-    def double_click_element(self, locator):
+    def double_click_element(self, locator, location=None):
         """ Doubleclick on element identified by xpath.
         Inputs:
             locator -> xpath to object
+            location -> relative coordinates to click (comma separated string)
         Output:
             Nothing if success
             else RanorexException
         """
         element = self.__return_type(locator)
-        getattr(Ranorex, element)(locator).DoubleClick()
+        try:
+            if location == None:
+                getattr(Ranorex, element)(locator).DoubleClick()
+            else:
+                if not isinstance(location, basestring):
+                    raise AssertionError('Location must be a string')
+                location = [int(x) for x in location.split(',')]
+                ele = getattr(Ranorex, element)(locator)
+                ele.DoubleClick(Ranorex.Location(location[0], location[1]))
+        except Exception as error:
+            raise AssertionError(error)
 
     def get_element_attribute(self, locator, attribute):
         """ Get specified element attribute.
@@ -167,17 +189,25 @@ class RanorexLibrary(object):
         element = self.__return_type(locator)
         getattr(Ranorex, element)(locator).PressKeys(text)
 
-    def right_click_element(self, locator):
+    def right_click_element(self, locator, location=None):
         """ Rightclick on desired element.
         Inputs:
             locator -> xpath to object
+            location -> relative coordinates to click (comma separated string)
         Outputs:
             Nothing if success
             else RanorexException
         """
         element = self.__return_type(locator)
         obj = getattr(Ranorex, element)(locator)
-        obj.Click(System.Windows.Forms.MouseButtons.Right)
+        if location == None:
+            obj.Click(System.Windows.Forms.MouseButtons.Right)
+        else:
+            if not isinstance(location, basestring):
+                raise AssertionError("Locator must be a string")
+            location = [int(x) for x in location.split(',')]
+            obj.Click(System.Windows.Forms.MouseButtons.Right,
+                      Ranorex.Location(location[0], location[1]))
 
     @classmethod
     def run_application(cls, app):
