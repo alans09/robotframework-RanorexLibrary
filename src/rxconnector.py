@@ -31,7 +31,8 @@ import os
 sys.path.append(os.path.abspath('..'))
 from src.robotremoteserver import RobotRemoteServer
 
-
+Ranorex.Validate.EnableReport = False
+Ranorex.Adapter.DefaultUseEnsureVisible = True
 class RanorexLibrary(object):
     """ Basic implementation of ranorex object calls for
     robot framework
@@ -73,7 +74,7 @@ class RanorexLibrary(object):
                 raise AssertionError("No element entered")
         raise AssertionError("Element is not supported. Entered element: %s" %
                              ele)
-
+ 
     def click_element(self, locator, location=None):
         """ Clicks on element located on location.
         Inputs:
