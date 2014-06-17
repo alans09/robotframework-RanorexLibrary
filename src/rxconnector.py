@@ -31,8 +31,6 @@ import os
 sys.path.append(os.path.abspath('..'))
 from src.robotremoteserver import RobotRemoteServer
 
-Ranorex.Validate.EnableReport = False
-Ranorex.Adapter.DefaultUseEnsureVisible = True
 class RanorexLibrary(object):
     """ Basic implementation of ranorex object calls for
     robot framework
@@ -46,6 +44,8 @@ class RanorexLibrary(object):
         Output:
             string with .net object type
         """
+        Ranorex.Validate.EnableReport = False
+        Ranorex.Adapter.DefaultUseEnsureVisible = True
         supported_types = ['AbbrTag', 'AcronymTag', 'AddressTag', 'AreaTag',
                            'ArticleTag', 'AsideTag', 'ATag', 'AudioTag',
                            'BaseFontTag', 'BaseTag', 'BdoTag', 'BigTag',
