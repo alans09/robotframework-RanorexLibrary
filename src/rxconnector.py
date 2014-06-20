@@ -28,8 +28,7 @@ import System.Windows.Forms
 import Ranorex
 import sys
 import os
-sys.path.append(os.path.abspath('..'))
-from src.robotremoteserver import RobotRemoteServer
+from robotremoteserver import RobotRemoteServer
 
 class RanorexLibrary(object):
     """ Basic implementation of ranorex object calls for
