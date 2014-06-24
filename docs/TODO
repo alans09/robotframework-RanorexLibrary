@@ -1,4 +1,2 @@
-- Prepare offline documentation 
-- Equivalent to 'page should contain'
-- Select tree by index
-- 
+- Select tree by index -> select tree values using index
+- Restart connector  -> needed to release license of ranorex once it is used 

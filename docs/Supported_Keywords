@@ -1,0 +1,115 @@
+### If there is no return value it will return True by default after successful execution ###
+
+Click Element    xpath, location=None    Preform click on desired element. If location is set it will click on specified location within element
+    RANOREX KEYWORD -> using ranorex test tool to execute
+    Example:
+        Click Element    /form[@processname='notepad']//button[@text='Close']
+        Click Element    /form[@processname='notepad']//button[@text='Close']    location=10,0
+
+Check    xpath    Checks checkbox identified by xpath. If checkbox is checked it does nothing. 
+    RANOREX KEYWORD -> using ranorex test tool to execute
+    Example:
+        Check    /form[@processname='notepad.exe']//checkbox[@childid='1']
+
+Check If Process Is Running    process_name    Check if process is running.
+    OS KEYWORD -> ranorex is not needed to execute this keyword 
+    Example:
+        Check If Process Is Running    notepad.exe
+
+Clear Text    xpath    Clear text in specified text field. Only text fields are supported
+    RANOREX KEYWORD -> using ranorex test tool to execute
+    Example:
+        Clear Text    /form[@processname='notepad.exe']//text[@childindex='0']
+
+Double Click Element    xpath, location=None    Preform double click on desired element. If location is set it will click on specified location within element.
+    RANOREX KEYWORD -> using ranorex test tool to execute
+    Example:
+        Double Click Element    /form[@processname='notepad.exe']//button[@text='Close']
+        Double Click Element    /form[@processname='notepad.exe']//button[@text='Close']    location=10,10
+
+Get Element Attribute    xpath, attribute    Returns desired attribute from element xpath is pointing to.
+    RANOREX KEYWORD -> using ranorex test tool to execute
+    Example:
+        Get Element Attribute    /form[@processname='notepad.exe'//button[@text='Close']    Text
+
+Input Text    xpath, text    Input desired text into field identified by xpath. 
+    RANOREX KEYWORD -> using ranorex test tool to execute
+    Example:
+        Input Text    /form[@processname='notepad.exe']//text    Hello world
+
+Kill Process    process_name    Kills process described by process_name. 
+    OS KEYWORD -> ranorex is not needed to execute this keyword
+    Example:
+        Kill Process    notepad.exe
+
+Right Click Element    xpath, location=None    Perform right click on desired element. If location is set it will click on specified location within element.
+    RANOREX KEYWORD -> using ranorex test tool to execute
+    Example:
+        Right Click Element    /form[@processname='notepad.exe']//button[@text='Close']
+        Right Click Element    /form[@processname='notepad.exe']//button[@text='Close']    location=10,10
+
+Run Application    app_path    Starts application in app_path. 
+    RANOREX KEYWORD -> using ranorex test tool to execute
+    Example:
+        Run Application    notepad.exe
+
+Run Application With Parameters    app_path, arguments    Starts application in app_path with desired arugments 
+    RANOREX KEYWORD -> using ranorex test tool to execute
+    Example:
+        Run Application With Parameters    notepad.exe    file_name.txt
+
+Run Script    script_path    Run script in script_path and returns stdout, stderr in form of {'stdout':<process output>, 'stderr':<output>}
+    OS KEYWORD -> ranorex is not needed to execute this keyword
+    Example:
+        Run Script    c:\\path\\to\\script\\script.bat
+
+Run Script With Parameters   script_path    Run script in script_path and returns stdout, stderr in form of {'stdout':<process output>, 'stderr':<output>}
+    OS KEYWORD -> ranorex is not needed to execute this keyword
+    Example:
+        Run Script With Parameters    c:\\path\\to\\script\\script.bat    param1 param2 param3
+
+Select By Index    xpath, index    Select combobox item that match its index.
+    RANOREX KEYWORD -> using ranorex test tool to execute
+    Example:
+        Select By Index    /form[@processname='abc']//combobox[@id='12']    4
+
+Send Keys    xpath, key_combination    Send key combination to element specified by xpath. Keys are evaluated according to: http://msdn.microsoft.com/en-us/library/system.windows.forms.keys.aspx
+    RANOREX KEYWORD -> using ranorex test tool to execute
+    Example:
+        Send Keys    /form[@processname='notepad.exe']    {Control down}{Alt down}{Delete down}{Control up}{Alt up}{Delete up}
+        Send Keys    /form[@processname='notepad.exe']    {Alt down}{FKey}{Alt up}{Skey}
+
+Set Focus    xpath    Sets focus on desired object described by xpath
+    RANOREX KEYWORD -> using ranorex test tool to execute
+    Example: 
+        Set Focus    /form[@processname='notepad.exe']
+
+Take Screenshot    xpath    Takes screenshot of element and returns base64 string.
+    RANOREX KEYWORD -> using ranorex test tool to execute
+    Example:
+        Take Screenshot    /form[@processname='notepad.exe']
+        Take Screenshot    /form[@processname='notepad.exe']//button[@text='Close']
+
+Uncheck    xpath    Uncheck checkbox. If checkbox is not checked it does nothing.
+    RANOREX KEYWORD -> using ranorex test tool to execute
+    Example:
+        Uncheck    /form[@processname='notepad.exe']//checkbox
+
+Wait For Element    xpath, timeout    Waits until elemement identified by xpath is shown or timeout is reached. Timeout is in ms.
+    RANOREX KEYWORD -> using ranorex test tool to execute
+    Example
+        Wait For Element    /form[@processname='notepad.exe']    20000
+
+Wait For Element Attribute    xpath, attribute, expected, timeout    Waits until attribute of elemement identified by xpath is 'expected' or timeout is reached
+    RANOREX KEYWORD -> using ranorex test tool to execute
+    Example
+        Wait For Element Attribute    /form[@processname='notepad.exe']/title    text    Untitled\ notepad    20000
+
+Wait For Process To Start    process_name, timeout    Waits unti process identified by process_name is started or timeout reached.
+    OS KEYWORD -> ranorex is not needed to execute this keyword
+    Example
+        Wait For Process To Start    notepad.exe    10000
+
+ 
+
+
