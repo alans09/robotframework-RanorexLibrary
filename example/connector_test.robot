@@ -79,3 +79,8 @@ Test of Run Script With Parameters keyword
 Test of Take Screenshot keyword
     ${res} =    Take Screenshot    /form[@processname='charmap']
     Should Contain    ${res}   AAAA 
+
+Test of Kill Process keyword
+    Run Application     notepad.exe
+    ${res}=    Kill Process    notepad.exe
+    Should Be True    ${res}

@@ -154,8 +154,7 @@ class RanorexLibrary(object):
             return True
         else:
             if not isinstance(location, basestring):
-                rtatus:q
-                ise AssertionError("Locator must be a string")
+                raise AssertionError("Locator must be a string")
             location = [int(x) for x in location.split(',')]
             obj.Click(System.Windows.Forms.MouseButtons.Right,
                       Ranorex.Location(location[0], location[1]))
