@@ -2,7 +2,7 @@
     Remote ranorex library for robot framework
     All commands return True if they are executed correctly
 """
-#iron python imports
+#iron python ]%imports
 import clr
 clr.AddReference('Ranorex.Core')
 clr.AddReference('System.Windows.Forms')
@@ -13,6 +13,15 @@ import sys
 import subprocess
 import time
 from robotremoteserver import RobotRemoteServer
+import logging
+import os
+
+
+logging.basicConfig(
+    format="%(asctime)s::[%(name)s.%(levelname)s] %(message)s",
+    datefmt="%I:%M:%S %p",
+    level=logging.DEBUG)
+logging.StreamHandler(sys.__stdout__)
 
 
 class RanorexLibrary(object):
@@ -59,19 +68,26 @@ class RanorexLibrary(object):
     def click_element(self, locator, location=None):
         """ Clicks on element identified by locator and location
         """
+        log = logging.getLogger("Click Element")
+        log.debug("Locator: %s", locator)
+        log.debug("Location: %s", location)
         element = self.__return_type(locator)
+        log.debug("Element: %s", element)
+        ele = getattr(Ranorex, element)(locator)
+        log.debug("Application object: %s", ele)
         try:
             if location == None:
-                getattr(Ranorex, element)(locator).Click()
+                ele = getattr(Ranorex, element)(locator)
+                ele.Click()
                 return True
             else:
                 if not isinstance(location, basestring):
                     raise AssertionError("Location must be a string")
                 location = [int(x) for x in location.split(',')]
-                ele = getattr(Ranorex, element)(locator)
                 ele.Click(Ranorex.Location(location[0], location[1]))
                 return True
         except Exception as error:
+            log.error("Failed because of %s", error)
             raise AssertionError(error)
 
     def check(self, locator):
@@ -79,10 +95,16 @@ class RanorexLibrary(object):
             Only checkbox and radiobutton are supported.
             Uses Click() method to check it.
         """
+        log = logging.getLogger("Check")
+        log.debug("Locator: %s", locator)
         element = self.__return_type(locator)
+        log.debug("Element: %s", element)
         if element == 'CheckBox' or element == 'RadioButton':
+            log.debug("Element is radiobutton or checkbox")
             obj = getattr(Ranorex, element)(locator)
+            log.debug("Application object: %s", obj)
             if not obj.Element.GetAttributeValue('Checked'):
+                obj.Element.GetAttributeValue('Checked')
                 obj.Click()
                 return True
         else:
@@ -101,30 +123,40 @@ class RanorexLibrary(object):
     def clear_text(self, locator):
         """ Clears text from text box. Only element Text is supported.
         """
+        log = logging.getLogger("Clear Text")
+        log.debug("Locator: %s", locator)
         element = self.__return_type(locator)
+        log.debug("Element: %s", element)
         if element != "Text":
+            log.error("Element is not a text field")
             raise AssertionError("Only element Text is supported!")
         else:
             obj = getattr(Ranorex, element)(locator)
+            log.debug("Application object: %s", obj)
             obj.PressKeys("{End}{Shift down}{Home}{Shift up}{Delete}")
             return True
-        raise AssertionError("Element %s does not exists" % locator) 
+        raise AssertionError("Element %s does not exists" % locator)
 
     def double_click_element(self, locator, location=None):
         """ Doubleclick on element identified by locator. It can click
             on desired location if requested.
         """
+        log = logging.getLogger("Double Click Element")
+        log.debug("Locator: %s", locator)
+        log.debug("Location: %s", location)
         element = self.__return_type(locator)
+        log.debug("Element: %s", element)
+        obj = getattr(Ranorex, element)(locator)
+        log.debug("Application object: %s", obj)
         try:
             if location == None:
-                getattr(Ranorex, element)(locator).DoubleClick()
+                obj.DoubleClick()
                 return True
             else:
                 if not isinstance(location, basestring):
                     raise AssertionError("Location must be a string")
                 location = [int(x) for x in location.split(',')]
-                ele = getattr(Ranorex, element)(locator)
-                ele.DoubleClick(Ranorex.Location(location[0], location[1]))
+                obj.DoubleClick(Ranorex.Location(location[0], location[1]))
                 return True
         except Exception as error:
             raise AssertionError(error)
@@ -132,23 +164,41 @@ class RanorexLibrary(object):
     def get_element_attribute(self, locator, attribute):
         """ Get specified element attribute.
         """
+        log = logging.getLogger("Get Element Attribute")
+        log.debug("Locator: %s", locator)
+        log.debug("Attribute: %s", attribute)
         element = self.__return_type(locator)
+        log.debug("Element: %s", element)
         obj = getattr(Ranorex, element)(locator)
-        return obj.Element.GetAttributeValue(attribute)
+        log.debug("Application object: %s", obj)
+        found = obj.Element.GetAttributeValue(attribute)
+        log.debug("Found attribute value is: %s", found)
+        return found
 
     def input_text(self, locator, text):
         """ input texts into specified locator.
         """
+        log = logging.getLogger("Input Text")
+        log.debug("Locator: %s", locator)
+        log.debug("Text to enter: %s", text)
         element = self.__return_type(locator)
-        getattr(Ranorex, element)(locator).PressKeys(text)
+        log.debug("Element: %s", element)
+        obj = getattr(Ranorex, element)(locator)
+        log.debug("Application object: %s", obj)
+        obj.PressKeys(text)
         return True
 
     def right_click_element(self, locator, location=None):
         """ Rightclick on desired element identified by locator.
         Location of click can be used.
         """
+        log = logging.getLogger("Right Click Element")
+        log.debug("Locator: %s", locator)
+        log.debug("Location: %s", location)
         element = self.__return_type(locator)
+        log.debug("Element: %s", element)
         obj = getattr(Ranorex, element)(locator)
+        log.debug("Application object: %s", obj)
         if location == None:
             obj.Click(System.Windows.Forms.MouseButtons.Right)
             return True
@@ -164,6 +214,9 @@ class RanorexLibrary(object):
     def run_application(cls, app):
         """ Runs local application.
         """
+        log = logging.getLogger("Run Application")
+        log.debug("Application: %s", app)
+        log.debug("Working dir: %s", os.getcwd())
         Ranorex.Host.Local.RunApplication(app)
         return True
 
@@ -171,6 +224,10 @@ class RanorexLibrary(object):
     def run_application_with_parameters(cls, app, params):
         """ Runs local application with parameters.
         """
+        log = logging.getLogger("Run Application With Parameters")
+        log.debug("Application: %s", app)
+        log.debug("Parameters: %s", params)
+        log.debug("Working dir: %s", os.getcwd())
         Ranorex.Host.Local.RunApplication(app, params)
         return True
 
@@ -178,6 +235,9 @@ class RanorexLibrary(object):
     def run_script(cls, script_path):
         """ Runs script on remote machine and returns stdout and stderr.
         """
+        log = logging.getLogger("Run Script")
+        log.debug("Script: %s", script_path)
+        log.debug("Working dir: %s", os.getcwd())
         process = subprocess.Popen([script_path],
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE)
@@ -188,6 +248,10 @@ class RanorexLibrary(object):
     def run_script_with_parameters(cls, script_path, params):
         """ Runs script on remote machine and returns stdout and stderr.
         """
+        log = logging.getLogger("Run Script With Parameters")
+        log.debug("Script: %s", script_path)
+        log.debug("Parameters: %s", params)
+        log.debug("Working dir: %s", os.getcwd())
         process = subprocess.Popen([script_path, params],
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE)
@@ -197,10 +261,17 @@ class RanorexLibrary(object):
     def select_by_index(self, locator, index):
         """ Selects item from combobox according to index.
         """
+        log = logging.getLogger("Select By Index")
+        log.debug("Locator: %s", locator)
+        log.debug("Index: %s", index)
         element = self.__return_type(locator)
+        log.debug("Element: %s", element)
         obj = getattr(Ranorex, element)(locator)
+        log.debug("Application object: %s", obj)
         selected = obj.Element.GetAttributeValue("SelectedItemIndex")
+        log.debug("Selected item: %s", selected)
         diff = int(selected) - int(index)
+        log.debug("Diff for keypress: %s", diff)
         if diff >= 0:
             for _ in range(0, diff):
                 obj.PressKeys("{up}")
@@ -216,6 +287,9 @@ class RanorexLibrary(object):
         seq according to :
         http://msdn.microsoft.com/en-us/library/system.windows.forms.keys.aspx
         """
+        log = logging.getLogger("Send Keys")
+        log.debug("Locator: %s", locator)
+        log.debug("Key sequence: %s", key_seq)
         Ranorex.Keyboard.PrepareFocus(locator)
         Ranorex.Keyboard.Press(key_seq)
         return True
@@ -223,26 +297,39 @@ class RanorexLibrary(object):
     def set_focus(self, locator):
         """ Sets focus on desired location.
         """
+        log = logging.getLogger("Set Focus")
+        log.debug("Locator: %s", locator)
         element = self.__return_type(locator)
+        log.debug("Element: %s", element)
         obj = getattr(Ranorex, element)(locator)
+        log.debug("Application object: %s", obj)
         obj.Focus()
         return obj.HasFocus
 
     def take_screenshot(self, locator):
         """ Takes screenshot and return it as base64.
         """
+        log = logging.getLogger("Take Screenshot")
+        log.debug("Locator: %s", locator)
         element = self.__return_type(locator)
+        log.debug("Element: %s", element)
         obj = getattr(Ranorex, element)(locator)
+        log.debug("Application object: %s", obj)
         img = obj.CaptureCompressedImage()
         return img.ToBase64String()
 
     def uncheck(self, locator):
         """ Check if element is checked. If yes it uncheck it
         """
+        log = logging.getLogger("Uncheck")
+        log.debug("Locator: %s", locator)
         element = self.__return_type(locator)
+        log.debug("Element: %s", element)
         if element == 'CheckBox' or element == 'RadioButton':
             obj = getattr(Ranorex, element)(locator)
+            log.debug("Application object: %s", obj)
             if obj.Element.GetAttributeValue('Checked'):
+                log.debug("Object is checked => unchecking")
                 obj.Click()
                 return True
         else:
@@ -252,15 +339,12 @@ class RanorexLibrary(object):
     @classmethod
     def wait_for_element(cls, locator, timeout):
         """ Wait for element becomes on the screen.
-        Inputs:
-            locator -> xpath to object
-            timeout -> timeout in ms to wait
-        Outputs:
-            Element <name> exists if success
-            else RanorexException
         """
+        log = logging.getLogger("Wait For Element")
+        log.debug("Locator: %s", locator)
+        log.debug("Timeout: %s", timeout)
         Ranorex.Validate.EnableReport = False
-        if Ranorex.Validate.Exists(locator, int(timeout)):
+        if Ranorex.Validate.Exists(locator, int(timeout)) is None:
             return True
         raise AssertionError("Element %s does not exists" % locator)
 
@@ -268,6 +352,11 @@ class RanorexLibrary(object):
                                    expected, timeout):
         """ Wait for element attribute becomes requested value.
         """
+        log = logging.getLogger("Wait For Element Attribute")
+        log.debug("Locator: %s", locator)
+        log.debug("Attribute: %s", attribute)
+        log.debug("Expected: %s", expected)
+        log.debug("Timeout: %s", timeout)
         curr_time = 0
         timeout = int(timeout)/1000
         while curr_time != timeout:
@@ -283,6 +372,9 @@ class RanorexLibrary(object):
     def wait_for_process_to_start(cls, process_name, timeout):
         """ Waits for /timeout/ seconds for process to start.
         """
+        log = logging.getLogger("Wait For Process To Start")
+        log.debug("Process name: %s", process_name)
+        log.debug("Timeout: %s", timeout)
         curr_time = 0
         timeout = int(timeout)/1000
         while curr_time <= timeout:
@@ -300,12 +392,17 @@ class RanorexLibrary(object):
     def kill_process(self, process_name):
         """ Kills process identified by process_name
         """
-        if not self.check_if_process_is_running(process_name):
+        log = logging.getLogger("Kill Process")
+        log.debug("Process name: %s", process_name)
+        res = self.check_if_process_is_running(process_name)
+        log.debug("Process is running: %s", res)
+        if not res:
             raise AssertionError("Process %s is not running" % process_name)
         proc = subprocess.Popen(['taskkill', '/im', process_name, '/f'],
                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out = proc.communicate()
         if 'SUCCESS' in out[0]:
+            log.debug("Output of killing: %s", out)
             return True
         else:
             raise AssertionError("Process %s not terminated because of: %s" %
