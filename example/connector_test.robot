@@ -1,5 +1,6 @@
 *** Settings ***
-Library    Remote    http://127.0.0.1:8270
+#Library    Remote    http://127.0.0.1:8270
+Library    Remote    http://172.20.10.4:11000
 Suite Teardown    Teardown of suite 
   
 *** Keywords ***
@@ -7,6 +8,9 @@ Teardown of suite
     Click Element    /form[@processname='charmap']/?/?/button[@accessiblename='Close']
 
 *** Test cases ***
+Test of start debug
+    Start Debug
+
 Test of Run Application keyword
     Run Application    charmap.exe
 
@@ -69,11 +73,11 @@ Test of Send Keys keyword
     Click Element    /form[@processname='notepad']/?/?/button[@accessiblename='Close']
 
 Test of Run Script keyword
-    ${res} =    Run Script     echoonly.bat
+    ${res} =    Run Script     ../example/echoonly.bat
     Should Be Equal    ${res['stdout']}    hello world
 
 Test of Run Script With Parameters keyword
-    ${res} =    Run Script With Parameters    echoinput.bat    hello
+    ${res} =    Run Script With Parameters    ../example/echoinput.bat    hello
     Should Be Equal    ${res['stdout']}    hello
 
 Test of Take Screenshot keyword
