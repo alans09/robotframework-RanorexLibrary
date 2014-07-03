@@ -18,19 +18,138 @@ import os
 
 logging.basicConfig(
     format="%(asctime)s::[%(name)s.%(levelname)s] %(message)s",
-        datefmt="%I:%M:%S %p",
-        level='DEBUG')
+    datefmt="%I:%M:%S %p",
+    level='DEBUG')
 logging.StreamHandler(sys.__stdout__)
+
 
 class RanorexLibrary(object):
     """ Basic implementation of ranorex object calls for
     robot framework
     """
-    debug = False
+    def __init__(self):
+        self.debug = False
+        self.model_loaded = False
+        self.model = None
 
-    def start_debug(self, level='DEBUG'):
+    def start_debug(self):
         """ Starts to show debug messages on remote connector """
         self.debug = True
+################
+
+    def __return_what_to_do(self, repository, item):
+        """  Returns parsed list with command and arguments"""
+        rep_file = open(repository, 'r')
+        repo = rep_file.readlines()
+        rep_file.close()
+        sendkey = False
+        location = False
+        if self.debug:
+            log = logging.getLogger("__return_repository_item")
+        ## parse command from rest ###
+        command = item[1:item.find('(', 1)]
+        rest = item[item.find('(', 1)+1:-2]
+        if self.debug:
+            log.debug("Rest to parse: %s", rest)
+            log.debug("Command to run: %s", command)
+        if 'send_key' in command:
+            rep_item = rest[0:rest.find('}', 1)+1]
+            combination = rest[rest.find('},', 1)+2:]
+            if self.debug:
+                log.debug("repository item: %s", rep_item)
+                log.debug("Key combination: %s", combination)
+            sendkey = True
+        elif 'location' in item:
+            rep_item = rest.split(',')[0]
+            location = item.split('=')[1]
+            location = location.replace('\'', '')
+            if self.debug:
+                log.debug("Location is part of item")
+                log.debug("Repository item: %s", rep_item)
+                log.debug("Location: %s", location[:-2])
+        else:
+            rep_item = rest
+            if self.debug:
+                log.debug("rep_item: %s", rest)
+            location = False
+        for line in repo:
+            if rep_item in line:
+                if self.debug:
+                    log.debug("Found match -> %s",
+                              line.split('=', 1)[1].strip())
+                if location:
+                    return [command, line.split('=', 1)[1].strip(),
+                            location[:-2]]
+                elif sendkey:
+                    return [command, line.split('=', 1)[1].strip(),
+                            combination]
+                elif not location:
+                    return [command, line.split('=', 1)[1].strip()]
+        if location:
+            return [command, rep_item, location]
+        elif sendkey:
+            return [command, rep_item, combination]
+        else:
+            return [command, rep_item]
+
+    def load_model(self, model, force=False):
+        """ Loads model from dot file """
+        if force:
+            self.model_loaded = False
+        if self.model_loaded:
+            return True
+        if self.debug:
+            log = logging.getLogger("Load Model")
+        try:
+            from pygraph.readwrite import dot
+        except Exception:
+            raise AssertionError("No pygraph installed")
+        data = open(model).read()
+        self.model = dot.read(data)
+        self.model_loaded = True
+        if self.debug:
+            log.debug("Model loaded!")
+        return True
+
+    def navigate_to(self, start, finish, repository=None):
+        """ Navigates from start node to finish node """
+        if self.debug:
+            log = logging.getLogger("Navigate To")
+        try:
+            from pygraph.algorithms.minmax import shortest_path
+        except Exception:
+            raise AssertionError("Can't import shortest_path")
+        s_path = shortest_path(self.model, start)
+        end = finish
+        path = []
+        path = path + [end]
+        for _ in range(0, int(s_path[1][end])-1):
+            path = [s_path[0][path[0]]] + path
+        path = [start] + path
+        edges_to_go = [(path[i], path[i+1]) for i in range(0, len(path)-1)]
+        if self.debug:
+            log.debug("====Edges to go trough: %s====", edges_to_go)
+        res = []
+        for i in edges_to_go:
+            what_to_do = self.model.edge_label(i)
+            res.append(what_to_do)
+            if self.debug:
+                log.debug("What to do: %s", what_to_do)
+                log.debug(" === Current edge: %s === ", str(i))
+            wtd = self.__return_what_to_do(repository, what_to_do)
+            if self.debug:
+                log.debug("Going to execute: %s", wtd)
+            if len(wtd) == 2:
+                getattr(self, wtd[0])(wtd[1])
+            elif len(wtd) == 3:
+                if self.debug:
+                    log.debug("Going to execute: %s", wtd)
+                if "{" in wtd[2]:
+                    getattr(self, wtd[0])(wtd[1], wtd[2])
+                else:
+                    getattr(self, wtd[0])(wtd[1], location=wtd[2])
+        return True
+#################
 
     def stop_debug(self):
         """ Stops to show debug messages """
@@ -76,13 +195,16 @@ class RanorexLibrary(object):
     def click_element(self, locator, location=None):
         """ Clicks on element identified by locator and location
         """
-        if self.debug: log = logging.getLogger("Click Element")
-        if self.debug: log.debug("Locator: %s", locator)
-        if self.debug: log.debug("Location: %s", location)
+        if self.debug:
+            log = logging.getLogger("Click Element")
+            log.debug("Locator: %s", locator)
+            log.debug("Location: %s", location)
         element = self.__return_type(locator)
-        if self.debug: log.debug("Element: %s", element)
+        if self.debug:
+            log.debug("Element: %s", element)
         ele = getattr(Ranorex, element)(locator)
-        if self.debug: log.debug("Application object: %s", ele)
+        if self.debug:
+            log.debug("Application object: %s", ele)
         try:
             if location == None:
                 ele = getattr(Ranorex, element)(locator)
@@ -95,7 +217,8 @@ class RanorexLibrary(object):
                 ele.Click(Ranorex.Location(location[0], location[1]))
                 return True
         except Exception as error:
-            if self.debug: log.error("Failed because of %s", error)
+            if self.debug:
+                log.error("Failed because of %s", error)
             raise AssertionError(error)
 
     def check(self, locator):
@@ -103,14 +226,18 @@ class RanorexLibrary(object):
             Only checkbox and radiobutton are supported.
             Uses Click() method to check it.
         """
-        if self.debug: log = logging.getLogger("Check")
-        if self.debug: log.debug("Locator: %s", locator)
+        if self.debug:
+            log = logging.getLogger("Check")
+            log.debug("Locator: %s", locator)
         element = self.__return_type(locator)
-        if self.debug: log.debug("Element: %s", element)
+        if self.debug:
+            log.debug("Element: %s", element)
         if element == 'CheckBox' or element == 'RadioButton':
-            if self.debug: log.debug("Element is radiobutton or checkbox")
+            if self.debug:
+                log.debug("Element is radiobutton or checkbox")
             obj = getattr(Ranorex, element)(locator)
-            if self.debug: log.debug("Application object: %s", obj)
+            if self.debug:
+                log.debug("Application object: %s", obj)
             if not obj.Element.GetAttributeValue('Checked'):
                 obj.Element.GetAttributeValue('Checked')
                 obj.Click()
@@ -131,16 +258,20 @@ class RanorexLibrary(object):
     def clear_text(self, locator):
         """ Clears text from text box. Only element Text is supported.
         """
-        if self.debug: log = logging.getLogger("Clear Text")
-        if self.debug: log.debug("Locator: %s", locator)
+        if self.debug:
+            log = logging.getLogger("Clear Text")
+            log.debug("Locator: %s", locator)
         element = self.__return_type(locator)
-        if self.debug: log.debug("Element: %s", element)
+        if self.debug:
+            log.debug("Element: %s", element)
         if element != "Text":
-            if self.debug: log.error("Element is not a text field")
+            if self.debug:
+                log.error("Element is not a text field")
             raise AssertionError("Only element Text is supported!")
         else:
             obj = getattr(Ranorex, element)(locator)
-            if self.debug: log.debug("Application object: %s", obj)
+            if self.debug:
+                log.debug("Application object: %s", obj)
             obj.PressKeys("{End}{Shift down}{Home}{Shift up}{Delete}")
             return True
         raise AssertionError("Element %s does not exists" % locator)
@@ -149,13 +280,16 @@ class RanorexLibrary(object):
         """ Doubleclick on element identified by locator. It can click
             on desired location if requested.
         """
-        if self.debug: log = logging.getLogger("Double Click Element")
-        if self.debug: log.debug("Locator: %s", locator)
-        if self.debug: log.debug("Location: %s", location)
+        if self.debug:
+            log = logging.getLogger("Double Click Element")
+            log.debug("Locator: %s", locator)
+            log.debug("Location: %s", location)
         element = self.__return_type(locator)
-        if self.debug: log.debug("Element: %s", element)
+        if self.debug:
+            log.debug("Element: %s", element)
         obj = getattr(Ranorex, element)(locator)
-        if self.debug: log.debug("Application object: %s", obj)
+        if self.debug:
+            log.debug("Application object: %s", obj)
         try:
             if location == None:
                 obj.DoubleClick()
@@ -172,27 +306,34 @@ class RanorexLibrary(object):
     def get_element_attribute(self, locator, attribute):
         """ Get specified element attribute.
         """
-        if self.debug: log = logging.getLogger("Get Element Attribute")
-        if self.debug: log.debug("Locator: %s", locator)
-        if self.debug: log.debug("Attribute: %s", attribute)
+        if self.debug:
+            log = logging.getLogger("Get Element Attribute")
+            log.debug("Locator: %s", locator)
+            log.debug("Attribute: %s", attribute)
         element = self.__return_type(locator)
-        if self.debug: log.debug("Element: %s", element)
+        if self.debug:
+            log.debug("Element: %s", element)
         obj = getattr(Ranorex, element)(locator)
-        if self.debug: log.debug("Application object: %s", obj)
+        if self.debug:
+            log.debug("Application object: %s", obj)
         found = obj.Element.GetAttributeValue(attribute)
-        if self.debug: log.debug("Found attribute value is: %s", found)
+        if self.debug:
+            log.debug("Found attribute value is: %s", found)
         return found
 
     def input_text(self, locator, text):
         """ input texts into specified locator.
         """
-        if self.debug: log = logging.getLogger("Input Text")
-        if self.debug: log.debug("Locator: %s", locator)
-        if self.debug: log.debug("Text to enter: %s", text)
+        if self.debug:
+            log = logging.getLogger("Input Text")
+            log.debug("Locator: %s", locator)
+            log.debug("Text to enter: %s", text)
         element = self.__return_type(locator)
-        if self.debug: log.debug("Element: %s", element)
+        if self.debug:
+            log.debug("Element: %s", element)
         obj = getattr(Ranorex, element)(locator)
-        if self.debug: log.debug("Application object: %s", obj)
+        if self.debug:
+            log.debug("Application object: %s", obj)
         obj.PressKeys(text)
         return True
 
@@ -200,13 +341,16 @@ class RanorexLibrary(object):
         """ Rightclick on desired element identified by locator.
         Location of click can be used.
         """
-        if self.debug: log = logging.getLogger("Right Click Element")
-        if self.debug: log.debug("Locator: %s", locator)
-        if self.debug: log.debug("Location: %s", location)
+        if self.debug:
+            log = logging.getLogger("Right Click Element")
+            log.debug("Locator: %s", locator)
+            log.debug("Location: %s", location)
         element = self.__return_type(locator)
-        if self.debug: log.debug("Element: %s", element)
+        if self.debug:
+            log.debug("Element: %s", element)
         obj = getattr(Ranorex, element)(locator)
-        if self.debug: log.debug("Application object: %s", obj)
+        if self.debug:
+            log.debug("Application object: %s", obj)
         if location == None:
             obj.Click(System.Windows.Forms.MouseButtons.Right)
             return True
@@ -221,28 +365,31 @@ class RanorexLibrary(object):
     def run_application(self, app):
         """ Runs local application.
         """
-        if self.debug: log = logging.getLogger("Run Application")
-        if self.debug: log.debug("Application: %s", app)
-        if self.debug: log.debug("Working dir: %s", os.getcwd())
+        if self.debug:
+            log = logging.getLogger("Run Application")
+            log.debug("Application: %s", app)
+            log.debug("Working dir: %s", os.getcwd())
         Ranorex.Host.Local.RunApplication(app)
         return True
 
     def run_application_with_parameters(self, app, params):
         """ Runs local application with parameters.
         """
-        if self.debug: log = logging.getLogger("Run Application With Parameters")
-        if self.debug: log.debug("Application: %s", app)
-        if self.debug: log.debug("Parameters: %s", params)
-        if self.debug: log.debug("Working dir: %s", os.getcwd())
+        if self.debug:
+            log = logging.getLogger("Run Application With Parameters")
+            log.debug("Application: %s", app)
+            log.debug("Parameters: %s", params)
+            log.debug("Working dir: %s", os.getcwd())
         Ranorex.Host.Local.RunApplication(app, params)
         return True
 
     def run_script(self, script_path):
         """ Runs script on remote machine and returns stdout and stderr.
         """
-        if self.debug: log = logging.getLogger("Run Script")
-        if self.debug: log.debug("Script: %s", script_path)
-        if self.debug: log.debug("Working dir: %s", os.getcwd())
+        if self.debug:
+            log = logging.getLogger("Run Script")
+            log.debug("Script: %s", script_path)
+            log.debug("Working dir: %s", os.getcwd())
         process = subprocess.Popen([script_path],
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE)
@@ -252,10 +399,11 @@ class RanorexLibrary(object):
     def run_script_with_parameters(self, script_path, params):
         """ Runs script on remote machine and returns stdout and stderr.
         """
-        if self.debug: log = logging.getLogger("Run Script With Parameters")
-        if self.debug: log.debug("Script: %s", script_path)
-        if self.debug: log.debug("Parameters: %s", params)
-        if self.debug: log.debug("Working dir: %s", os.getcwd())
+        if self.debug:
+            log = logging.getLogger("Run Script With Parameters")
+            log.debug("Script: %s", script_path)
+            log.debug("Parameters: %s", params)
+            log.debug("Working dir: %s", os.getcwd())
         process = subprocess.Popen([script_path, params],
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE)
@@ -265,17 +413,22 @@ class RanorexLibrary(object):
     def select_by_index(self, locator, index):
         """ Selects item from combobox according to index.
         """
-        if self.debug: log = logging.getLogger("Select By Index")
-        if self.debug: log.debug("Locator: %s", locator)
-        if self.debug: log.debug("Index: %s", index)
+        if self.debug:
+            log = logging.getLogger("Select By Index")
+            log.debug("Locator: %s", locator)
+            log.debug("Index: %s", index)
         element = self.__return_type(locator)
-        if self.debug: log.debug("Element: %s", element)
+        if self.debug:
+            log.debug("Element: %s", element)
         obj = getattr(Ranorex, element)(locator)
-        if self.debug: log.debug("Application object: %s", obj)
+        if self.debug:
+            log.debug("Application object: %s", obj)
         selected = obj.Element.GetAttributeValue("SelectedItemIndex")
-        if self.debug: log.debug("Selected item: %s", selected)
+        if self.debug:
+            log.debug("Selected item: %s", selected)
         diff = int(selected) - int(index)
-        if self.debug: log.debug("Diff for keypress: %s", diff)
+        if self.debug:
+            log.debug("Diff for keypress: %s", diff)
         if diff >= 0:
             for _ in range(0, diff):
                 obj.PressKeys("{up}")
@@ -290,9 +443,10 @@ class RanorexLibrary(object):
         seq according to :
         http://msdn.microsoft.com/en-us/library/system.windows.forms.keys.aspx
         """
-        if self.debug: log = logging.getLogger("Send Keys")
-        if self.debug: log.debug("Locator: %s", locator)
-        if self.debug: log.debug("Key sequence: %s", key_seq)
+        if self.debug:
+            log = logging.getLogger("Send Keys")
+            log.debug("Locator: %s", locator)
+            log.debug("Key sequence: %s", key_seq)
         Ranorex.Keyboard.PrepareFocus(locator)
         Ranorex.Keyboard.Press(key_seq)
         return True
@@ -300,39 +454,49 @@ class RanorexLibrary(object):
     def set_focus(self, locator):
         """ Sets focus on desired location.
         """
-        if self.debug: log = logging.getLogger("Set Focus")
-        if self.debug: log.debug("Locator: %s", locator)
+        if self.debug:
+            log = logging.getLogger("Set Focus")
+            log.debug("Locator: %s", locator)
         element = self.__return_type(locator)
-        if self.debug: log.debug("Element: %s", element)
+        if self.debug:
+            log.debug("Element: %s", element)
         obj = getattr(Ranorex, element)(locator)
-        if self.debug: log.debug("Application object: %s", obj)
+        if self.debug:
+            log.debug("Application object: %s", obj)
         obj.Focus()
         return obj.HasFocus
 
     def take_screenshot(self, locator):
         """ Takes screenshot and return it as base64.
         """
-        if self.debug: log = logging.getLogger("Take Screenshot")
-        if self.debug: log.debug("Locator: %s", locator)
+        if self.debug:
+            log = logging.getLogger("Take Screenshot")
+            log.debug("Locator: %s", locator)
         element = self.__return_type(locator)
-        if self.debug: log.debug("Element: %s", element)
+        if self.debug:
+            log.debug("Element: %s", element)
         obj = getattr(Ranorex, element)(locator)
-        if self.debug: log.debug("Application object: %s", obj)
+        if self.debug:
+            log.debug("Application object: %s", obj)
         img = obj.CaptureCompressedImage()
         return img.ToBase64String()
 
     def uncheck(self, locator):
         """ Check if element is checked. If yes it uncheck it
         """
-        if self.debug: log = logging.getLogger("Uncheck")
-        if self.debug: log.debug("Locator: %s", locator)
+        if self.debug:
+            log = logging.getLogger("Uncheck")
+            log.debug("Locator: %s", locator)
         element = self.__return_type(locator)
-        if self.debug: log.debug("Element: %s", element)
+        if self.debug:
+            log.debug("Element: %s", element)
         if element == 'CheckBox' or element == 'RadioButton':
             obj = getattr(Ranorex, element)(locator)
-            if self.debug: log.debug("Application object: %s", obj)
+            if self.debug:
+                log.debug("Application object: %s", obj)
             if obj.Element.GetAttributeValue('Checked'):
-                if self.debug: log.debug("Object is checked => unchecking")
+                if self.debug:
+                    log.debug("Object is checked => unchecking")
                 obj.Click()
                 return True
         else:
@@ -342,9 +506,10 @@ class RanorexLibrary(object):
     def wait_for_element(self, locator, timeout):
         """ Wait for element becomes on the screen.
         """
-        if self.debug: log = logging.getLogger("Wait For Element")
-        if self.debug: log.debug("Locator: %s", locator)
-        if self.debug: log.debug("Timeout: %s", timeout)
+        if self.debug:
+            log = logging.getLogger("Wait For Element")
+            log.debug("Locator: %s", locator)
+            log.debug("Timeout: %s", timeout)
         Ranorex.Validate.EnableReport = False
         if Ranorex.Validate.Exists(locator, int(timeout)) is None:
             return True
@@ -354,11 +519,12 @@ class RanorexLibrary(object):
                                    expected, timeout):
         """ Wait for element attribute becomes requested value.
         """
-        if self.debug: log = logging.getLogger("Wait For Element Attribute")
-        if self.debug: log.debug("Locator: %s", locator)
-        if self.debug: log.debug("Attribute: %s", attribute)
-        if self.debug: log.debug("Expected: %s", expected)
-        if self.debug: log.debug("Timeout: %s", timeout)
+        if self.debug:
+            log = logging.getLogger("Wait For Element Attribute")
+            log.debug("Locator: %s", locator)
+            log.debug("Attribute: %s", attribute)
+            log.debug("Expected: %s", expected)
+            log.debug("Timeout: %s", timeout)
         curr_time = 0
         timeout = int(timeout)/1000
         while curr_time != timeout:
@@ -373,9 +539,10 @@ class RanorexLibrary(object):
     def wait_for_process_to_start(self, process_name, timeout):
         """ Waits for /timeout/ seconds for process to start.
         """
-        if self.debug: log = logging.getLogger("Wait For Process To Start")
-        if self.debug: log.debug("Process name: %s", process_name)
-        if self.debug: log.debug("Timeout: %s", timeout)
+        if self.debug:
+            log = logging.getLogger("Wait For Process To Start")
+            log.debug("Process name: %s", process_name)
+            log.debug("Timeout: %s", timeout)
         curr_time = 0
         timeout = int(timeout)/1000
         while curr_time <= timeout:
@@ -393,17 +560,20 @@ class RanorexLibrary(object):
     def kill_process(self, process_name):
         """ Kills process identified by process_name
         """
-        if self.debug: log = logging.getLogger("Kill Process")
-        if self.debug: log.debug("Process name: %s", process_name)
+        if self.debug:
+            log = logging.getLogger("Kill Process")
+            log.debug("Process name: %s", process_name)
         res = self.check_if_process_is_running(process_name)
-        if self.debug: log.debug("Process is running: %s", res)
+        if self.debug:
+            log.debug("Process is running: %s", res)
         if not res:
             raise AssertionError("Process %s is not running" % process_name)
         proc = subprocess.Popen(['taskkill', '/im', process_name, '/f'],
                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out = proc.communicate()
         if 'SUCCESS' in out[0]:
-            if self.debug: log.debug("Output of killing: %s", out)
+            if self.debug:
+                log.debug("Output of killing: %s", out)
             return True
         else:
             raise AssertionError("Process %s not terminated because of: %s" %

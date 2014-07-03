@@ -1,6 +1,6 @@
 *** Settings ***
 #Library    Remote    http://127.0.0.1:8270
-Library    Remote    http://172.20.10.4:11000
+Library    Remote    http://192.168.0.103:8270
 Suite Teardown    Teardown of suite 
   
 *** Keywords ***
@@ -73,11 +73,11 @@ Test of Send Keys keyword
     Click Element    /form[@processname='notepad']/?/?/button[@accessiblename='Close']
 
 Test of Run Script keyword
-    ${res} =    Run Script     ../example/echoonly.bat
+    ${res} =    Run Script     example/echoonly.bat
     Should Be Equal    ${res['stdout']}    hello world
 
 Test of Run Script With Parameters keyword
-    ${res} =    Run Script With Parameters    ../example/echoinput.bat    hello
+    ${res} =    Run Script With Parameters    example/echoinput.bat    hello
     Should Be Equal    ${res['stdout']}    hello
 
 Test of Take Screenshot keyword

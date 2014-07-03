@@ -7,8 +7,11 @@ TestSuite_*
 Ranorex*
 example/*.swp
 src/*.swp
+src/*.html
+src/*.xml
 src/unit_tests/*.swp
 */*/*.pyc
 *.swp
 *.pyc 
 */*.pyc
+site-packages/
