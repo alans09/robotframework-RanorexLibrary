@@ -1,0 +1,31 @@
+Added ability to online navigation using model. (first draft)
+Model have to be in dot notation. Labels of vertexes are used for navigation.
+Implemented only shortest_path from one node to another.
+Only supported functions to attach to vertexes are: click_element, send_keys
+
+
+model example:
+digraph test {
+    A -> B [label="click_element(${xpath})"];
+    B -> C [label="click_element(${xpath2},location='10,20')"];
+    C -> D [label="send_keys(${xpath}, {Alt down}{F4}{Alt up})];
+    D -> B [label="click_element(${xpath3})];
+}
+
+*** Resources ***
+Library    Remote    http://<ip>:<port>
+
+*** Test cases ***
+Load model to memory:
+    Load Model    <patH_to_model_on_remote_machine>    force=True/False
+    #if force is set to true, model is reloaded everytime
+
+Navigate in model from A to D
+    Navigate To    A    D    repository=<path_to_repository_on_remote_machine>
+    # gets shortet path from A -> D, translate ${variable} to xpath and execute clicks/send_keys
+
+Navigate in model from  C to B
+    Navigate To    C    B    repository=<path_to_repository_on_remote_machine>
+    # gets shortet path from A -> D, translate ${variable} to xpath and execute clicks/send_keys
+
+
