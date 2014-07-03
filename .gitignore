@@ -14,4 +14,3 @@ src/unit_tests/*.swp
 *.swp
 *.pyc 
 */*.pyc
-site-packages/
