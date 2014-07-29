@@ -188,6 +188,18 @@ class RanorexLibrary(object):
         except Exception as error:
             raise AssertionError(error)
 
+    def get_table(self, locator):
+        """ Get content of table without headers
+
+        :param locator: xpath string selecting element on screen
+        :return: two dimensional array with content of the table
+        """
+        element_type = self.__return_type(locator)
+        element = getattr(Ranorex, element_type)(locator)
+        table = [[cell.Text for cell in row.Cells] for row in element.Rows]
+
+        return table
+
     def get_element_attribute(self, locator, attribute):
         """ Get specified element attribute.
         """
