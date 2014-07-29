@@ -62,7 +62,7 @@ class RanorexLibrary(object):
                            'Link', 'List', 'ListItem', 'MenuBar',
                            'MenuItem', 'Picture', 'ProgressBar',
                            'RadioButton', 'Row', 'ScrollBar', 'Slider',
-                           'StatusBar', 'Text', 'TitleBar', 'ToggleButton',
+                           'StatusBar', 'Table', 'Text', 'TitleBar', 'ToggleButton',
                            'Tree', 'TreeItem', 'Unknown']
         splitted_locator = locator.split('/')
         if "[" in splitted_locator[-1]:

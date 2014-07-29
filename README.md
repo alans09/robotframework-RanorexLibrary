@@ -5,7 +5,7 @@ Remote Ranorex library to integrate with Robot Framework
 
 Introduction
 ============
-This is basic implementation of Ranorex test tool (www.ranorex.com) to use 
+This is basic implementation of Ranorex test tool (www.ranorex.com) to use
 with Robot Framework.
 
 Installation
