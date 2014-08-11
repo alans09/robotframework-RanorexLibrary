@@ -55,10 +55,10 @@ class RanorexLibrary(object):
                            'ButtonTag', 'CanvasTag', 'Cell', 'CenterTag',
                            'CheckBox', 'CiteTag', 'CodeTag', 'ColGroupTag',
                            'ColTag', 'Column', 'ComboBox', 'CommandTag',
-                           'ContextMenu', 'DataListTag', 'DdTag', 'DelTag',
-                           'DetailsTag', 'DfnTag', 'DirTag', 'DivTag',
-                           'DlTag', 'EmbedTag', 'EmTag', 'FieldSetTag',
-                           'FigureTag', 'FontTag', 'Form', 'FormTag',
+                           'Container', 'ContextMenu', 'DataListTag',
+                           'DdTag', 'DelTag', 'DetailsTag', 'DfnTag',
+                           'DirTag', 'DivTag', 'DlTag', 'EmbedTag', 'EmTag',
+                           'FieldSetTag', 'FigureTag', 'FontTag', 'Form', 'FormTag',
                            'Link', 'List', 'ListItem', 'MenuBar',
                            'MenuItem', 'Picture', 'ProgressBar',
                            'RadioButton', 'Row', 'ScrollBar', 'Slider',
@@ -306,6 +306,21 @@ class RanorexLibrary(object):
                                    stderr=subprocess.PIPE)
         output = process.communicate()
         return {'stdout':output[0], 'stderr':output[1]}
+
+    def scroll(self, locator, amount):
+        """ Hover above selected element and scroll positive or negative
+        amount of wheel turns
+
+        :param locator: xpath pointing to desired element
+        :param amount: int - amount of scrolling
+        :return: None
+        """
+
+        elem_type = self.__return_type(locator)
+        element = getattr(Ranorex, elem_type)(locator)
+        mouse = Ranorex.Mouse()
+        mouse.MoveTo(element.Element)
+        mouse.ScrollWheel(int(amount))
 
     def select_by_index(self, locator, index):
         """ Selects item from combobox according to index.
