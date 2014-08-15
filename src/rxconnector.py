@@ -9,19 +9,13 @@ clr.AddReference('System.Windows.Forms')
 import System.Windows.Forms
 import Ranorex
 #python imports
-import sys
-import subprocess
-import time
+from argparse import ArgumentParser
 from robotremoteserver import RobotRemoteServer
+import subprocess
 import logging
+import time
+import sys
 import os
-
-logging.basicConfig(
-    format="%(asctime)s::[%(name)s.%(levelname)s] %(message)s",
-    datefmt="%I:%M:%S %p",
-    level='DEBUG')
-logging.StreamHandler(sys.__stdout__)
-
 
 class RanorexLibrary(object):
     """ Basic implementation of ranorex object calls for
@@ -491,5 +485,33 @@ class RanorexLibrary(object):
             raise AssertionError("Process %s not terminated because of: %s" %
                                  (process_name, out))
 
+def configure_logging():
+    logging.basicConfig(
+            format="%(asctime)s::[%(name)s.%(levelname)s] %(message)s",
+            datefmt="%I:%M:%S %p",
+            level='DEBUG')
+    logging.StreamHandler(sys.__stdout__)
+
+def main():
+    # get configured logger
+    logger = logging.getLogger("MAIN")
+
+    # define arguments
+    parser = ArgumentParser(prog="rxconnector", description="Remote ranorex library for robot framework")
+    parser.add_argument("-i","--ip", required=False, dest="ip", default="0.0.0.0")
+    parser.add_argument("-p", "--port", required=False, type=int, dest="port", default=11000)
+
+    # parse arguments
+    args = parser.parse_args()
+
+    # run server
+    try:
+        server = RobotRemoteServer(RanorexLibrary(), args.ip, args.port)
+    except KeyboardInterrupt, e:
+        log("INFO: Keyboard Iterrupt: stopping server")
+        server.stop_remote_server()
+
 if __name__ == '__main__':
-    RobotRemoteServer(RanorexLibrary(), *sys.argv[1:])
+    configure_logging()
+    main()
+    sys.exit(0)
