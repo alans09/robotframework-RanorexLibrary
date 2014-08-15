@@ -19,8 +19,12 @@ Run
 To run remote server on machine just type:
 ipy.exe/ipy64.exe rxconnector.py [args]
 - argument should be :   <ip> <port> to run on
-eg.   ipy.exe rxconnector.py 10.1.32.43 8452
+eg. `ipy.exe rxconnector.py -i 10.1.32.43 -p 8452`
 
-In Robot Framework test suite/case just specify
+In order to use library in Robot Framework script, use following setting:
+
+```
 Library    Remote    ip:port
+```
+
 and run keywords that are implemented in here
