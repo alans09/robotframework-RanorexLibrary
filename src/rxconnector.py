@@ -280,7 +280,7 @@ class RanorexLibrary(object):
         """
 
         if self.debug:
-            log = logging.getLogger("Run Application %s With Parameters %s", app, params)
+            log.debug("Run Application %s With Parameters %s", app, params)
             log.debug("Working dir: %s", os.getcwd())
         Ranorex.Host.Local.RunApplication(app, params)
         return True
