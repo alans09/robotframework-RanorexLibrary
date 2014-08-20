@@ -532,7 +532,7 @@ def main():
     try:
         server = RobotRemoteServer(RanorexLibrary(), args.ip, args.port)
     except KeyboardInterrupt, e:
-        log("INFO: Keyboard Iterrupt: stopping server")
+        logger.info("INFO: Keyboard Iterrupt: stopping server")
         server.stop_remote_server()
 
 if __name__ == '__main__':
