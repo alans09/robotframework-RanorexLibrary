@@ -230,8 +230,7 @@ class RanorexLibrary(object):
         element.PressKeys(text)
         return True
 
-    @classmethod
-    def move_mouse_to(cls, x, y):
+    def move_mouse_to(self, x, y):
         """ Move mouse to global coordinates
 
         :param x: int, position on x axis
