@@ -230,6 +230,18 @@ class RanorexLibrary(object):
         element.PressKeys(text)
         return True
 
+    @classmethod
+    def move_to(cls, x, y):
+        """ Move mouse to global coordinates
+
+        :param x: int, position on x axis
+        :param y: int, position on y axis
+        :return: True on success
+        """
+        mouse = Ranorex.Mouse()
+        mouse.MoveTo(int(x), int(y))
+        return True
+
     def right_click_element(self, locator, location=None):
         """ Rightclick on desired element identified by locator.
         Location of click can be used.
@@ -262,7 +274,7 @@ class RanorexLibrary(object):
         """ Runs local application.
 
         :param app: path to application to execute
-        :returns: True/False
+        :returns: True/Ranorex exception
         """
 
         if self.debug:
