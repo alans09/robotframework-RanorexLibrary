@@ -231,13 +231,15 @@ class RanorexLibrary(object):
         return True
 
     @classmethod
-    def move_to(cls, x, y):
+    def move_mouse_to(cls, x, y):
         """ Move mouse to global coordinates
 
         :param x: int, position on x axis
         :param y: int, position on y axis
         :return: True on success
         """
+        if self.debug:
+            log.debug("Moving mouse to: %s,%s", x, y)
         mouse = Ranorex.Mouse()
         mouse.MoveTo(int(x), int(y))
         return True
