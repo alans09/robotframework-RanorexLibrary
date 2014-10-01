@@ -138,13 +138,15 @@ class RanorexLibrary(object):
         return True
 
     def check_event_viewer(self, *args):
-        """ Uses windows eventquery to look for specified logs in system.
-            :param *args: ... look in windows eventquery.vbs /? for help
-            :returns:    output of command
+        """ POWERSHELL is required for this functionality!!!
+        Windows XP powershell: http://tinyurl.com/om8swcs
+        Gets result from event_viewer according to *args
+        :param args: arguments according to: http://tinyurl.com/lzh7wed
+        :returns: Full output of powershell cmdlet
         """
         if self.debug:
             log.debug("Arguments event viever: %s", args)
-        cmd = r'cmd /c cscript c:\windows\system32\eventquery.vbs %s' % ' '.join(args)
+        cmd = r'powershell Get-EventLog %s' % ' '.join(args)
         p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
         out = p.communicate()[0]
         return out
