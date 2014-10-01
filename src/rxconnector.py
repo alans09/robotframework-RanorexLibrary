@@ -137,6 +137,18 @@ class RanorexLibrary(object):
             element.Click()
         return True
 
+    def check_event_viewer(self, *args):
+        """ Uses windows eventquery to look for specified logs in system.
+            :param *args: ... look in windows eventquery.vbs /? for help
+            :returns:    output of command
+        """
+        if self.debug:
+            log.debug("Arguments event viever: %s", args)
+        cmd = r'cmd /c cscript c:\windows\system32\eventquery.vbs %s' % ' '.join(args)
+        p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+        out = p.communicate()[0]
+        return out
+
     @classmethod
     def check_if_process_is_running(cls, process_name):
         """ Check if process with desired name is running.
