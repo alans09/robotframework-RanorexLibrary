@@ -236,10 +236,10 @@ class RanorexLibrary(object):
             log.debug("Retrieving %s attribute %s" % (xml_path, attrib))
             log.debug("Xpath of element: %s" % xpath)
         with open(xml_path, 'r') as f:
-            tree = ET.parse(f)
-            root = tree.getroot()
-            x = root.find(xpath)
-            f.close()
+            x = f.read().replace('\x00','')
+            tree = ET.fromstring(x)
+            x = tree.find(xpath)
+        f.close()
         return x.attrib[attrib]
 
     def input_text(self, locator, text):
