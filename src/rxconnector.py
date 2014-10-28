@@ -229,6 +229,18 @@ class RanorexLibrary(object):
         if self.debug:
             log.debug("Found attribute value is: %s", _attribute)
         return _attribute
+        
+    def get_xml_attribute(self, xml_path, xpath, attrib):
+        """ retrieves xml attribute using xpath """
+        if self.debug:
+            log.debug("Retrieving %s attribute %s" % (xml_path, attrib))
+            log.debug("Xpath of element: %s" % xpath)
+        with open(xml_path, 'r') as f:
+            tree = ET.parse(f)
+            root = tree.getroot()
+            x = root.find(xpath)
+            f.close()
+        return x.attrib[attrib]
 
     def input_text(self, locator, text):
         """ input texts into specified locator.
