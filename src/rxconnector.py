@@ -16,6 +16,8 @@ import logging
 import time
 import sys
 import os
+import xml.etree.ElementTree as ET
+
 
 log = logging.getLogger("RXCONNECTOR")
 
