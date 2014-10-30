@@ -336,9 +336,11 @@ class RanorexLibrary(object):
         if self.debug:
             log.debug("Run Script %s", script_path)
             log.debug("Working dir: %s", os.getcwd())
+        wd = os.path.dirname(script_path)
         process = subprocess.Popen([script_path],
                                    stdout=subprocess.PIPE,
-                                   stderr=subprocess.PIPE)
+                                   stderr=subprocess.PIPE,
+                                   cwd=wd)
         output = process.communicate()
         return {'stdout':output[0], 'stderr':output[1]}
 
@@ -351,12 +353,14 @@ class RanorexLibrary(object):
         """
 
         params = list(params)
+        wd = os.path.dirname(script_path)
         if self.debug:
             log.debug("Run Script %s with params %s", script_path, params)
             log.debug("Working dir: %s", os.getcwd())
         process = subprocess.Popen([script_path] + params,
                                    stdout=subprocess.PIPE,
-                                   stderr=subprocess.PIPE)
+                                   stderr=subprocess.PIPE,
+                                   cwd=wd)
         output = process.communicate()
         return {'stdout':output[0], 'stderr':output[1]}
 
