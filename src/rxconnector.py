@@ -258,6 +258,21 @@ class RanorexLibrary(object):
         element.PressKeys(text)
         return True
 
+    def make_diff(self, file_a, file_b):
+        """ makes diff between two files
+        :param file_a: first file to compare
+        :param file_b: second file to compare
+        :returns: output of diff (empty if no diff)
+        """
+        if self.debug:
+            log.debug("First file: %s, Second file: %s", file_a, file_b)
+        ff = open(file_a, "r").readlines()
+        sf = open(file_b, "r").readlines()
+        output = ""
+        for line in difflib.unified_diff(ff, sf):
+            output += line
+        return output
+
     def move_mouse_to(self, x, y):
         """ Move mouse to global coordinates
 
