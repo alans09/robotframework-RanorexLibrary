@@ -17,6 +17,7 @@ import time
 import sys
 import os
 import xml.etree.ElementTree as ET
+import difflib
 
 
 log = logging.getLogger("RXCONNECTOR")
